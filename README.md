@@ -2,7 +2,11 @@
 
 A browser-based Breakout game with a neon arcade look. Built with HTML5 Canvas and vanilla JavaScript.
 
-## How to Run
+## Live Demo
+
+[Play the game](https://haniaakhann.github.io/breakout-game/)
+
+## How to Run Locally
 
 This project uses ES modules, so open it through a local server rather than double-clicking the HTML file.
 
@@ -14,10 +18,19 @@ Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
 ## Controls
 
-- **Mouse / Touch** — move the paddle
+**Desktop**
+- **Mouse** — move the paddle
 - **Arrow Keys / A D** — move the paddle
-- **Space** — start the game
+- **Space** — start the game / advance to next level
 - **R** — restart after winning or losing
+
+**Mobile**
+- **Touch / drag** — move the paddle
+- **Tap** — start, advance level, or restart (see mobile setup below if not working yet)
+
+## Gameplay
+
+You have 3 lives. Clear all bricks to advance. Miss the ball and you lose a life. Beat all 5 levels to win. Ball speed increases each level.
 
 ## Project Structure
 
@@ -29,7 +42,3 @@ js/paddle.js    — paddle movement and drawing
 js/ball.js      — ball physics and collisions
 js/bricks.js    — brick grid setup
 ```
-
-## Gameplay
-
-You have 3 lives. Clear all bricks to advance. Miss the ball and you lose a life. Beat all 5 levels to win. Ball speed increases each level.

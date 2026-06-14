@@ -41,11 +41,18 @@ canvas.addEventListener("mousemove", (event) => {
 
 canvas.addEventListener("touchstart", (event) => {
     event.preventDefault();
+    if (gameState !== "playing"){
+        handleMenuAction();
+        return;
+    }
     paddle.updatePosition(getCanvasX(event.touches[0].clientX));
 }, { passive: false });
 
 canvas.addEventListener("touchmove", (event) => {
     event.preventDefault();
+    if (gameState !=="playing"){
+        return;
+    }
     paddle.updatePosition(getCanvasX(event.touches[0].clientX));
 }, { passive: false });
 
@@ -57,14 +64,10 @@ window.addEventListener("keydown", (event) => {
         keys.right = true;
     }
     if (event.code === "Space") {
-        if (gameState ==="start"){
-            gameState ="playing";
-        }else if (gameState === "levelComplete") {
-            currentLevel ++;
-            loadLevel(currentLevel);
-            gameState = "playing";
-        }
+        handleMenuAction();
     }
+    
+    
     if (
         event.key.toLowerCase() === "r" &&
         (gameState === "won" || gameState === "lost")
@@ -81,7 +84,17 @@ window.addEventListener("keyup", (event) => {
         keys.right = false;
     }
 });
-
+function handleMenuAction(){
+    if (gameState === "start"){
+        gameState = "playing";
+    }else if (gameState === "levelComplete") {
+        currentLevel++;
+        loadLevel(currentLevel);
+        gameState = "playing";
+    }else if (gameState === "won" || gameState === "lost") {
+        restartGame();
+    }
+}
 function restartGame() {
     lives = 3;
     currentLevel =1;
@@ -140,7 +153,7 @@ function draw() {
         ctx.textAlign = "center";
         ctx.fillText(`Level ${currentLevel} Complete!`, canvas.width / 2, 280);
         ctx.font = "18px Arial";
-        ctx.fillText("Press Space for Next Level", canvas.width / 2, 320);
+        ctx.fillText("Tap or Press Space for Next Level", canvas.width / 2, 320);
         ctx.textAlign = "left";
         ctx.shadowBlur = 0;
         return;
@@ -153,7 +166,7 @@ function draw() {
         ctx.textAlign = "center";
         ctx.fillText("You Beat All Levels!", canvas.width / 2, 280);
         ctx.font = "18px Arial";
-        ctx.fillText("Press R to Restart", canvas.width / 2, 320);
+        ctx.fillText("Tap or Press R to Restart", canvas.width / 2, 320);
         ctx.textAlign = "left";
         ctx.shadowBlur = 0;
         return;
@@ -167,7 +180,7 @@ function draw() {
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", canvas.width / 2, 280);
         ctx.font = "18px Arial";
-        ctx.fillText("Press R to Restart", canvas.width / 2, 320);
+        ctx.fillText("Tap or Press R to Restart", canvas.width / 2, 320);
         ctx.textAlign = "left";
         ctx.shadowBlur = 0;
         return;
@@ -183,7 +196,7 @@ function draw() {
 
         ctx.font = "18px Arial";
         ctx.fillStyle = "#00F5FF";
-        ctx.fillText("Press Space to Start", canvas.width / 2, 300);
+        ctx.fillText("Tap or Press Space to Start", canvas.width / 2, 300);
         ctx.fillText("Arrow Keys / A D to Move", canvas.width / 2, 330);
         ctx.textAlign = "left";
         ctx.shadowBlur = 0;
@@ -201,7 +214,7 @@ function draw() {
     ctx.fillText(`Level: ${currentLevel}`, canvas.width/2, 30);
     ctx.textAlign = "left";
     ctx.fillText(`Lives: ${lives}`, 20, 30);
-    ctx.fillText(`Bricks: ${bricksRemaining}`, 350, 30);
+    ctx.fillText(`Bricks: ${bricksRemaining}`, 380, 30);
     ctx.shadowBlur = 0;
 
     bricks.forEach((brick) => {
