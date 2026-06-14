@@ -11,14 +11,24 @@ canvas.height = 600;
 const paddle = new Paddle(canvas.width);
 const ball = new Ball();
 
-let bricks = createBricks(canvas);
-let bricksRemaining = bricks.length;
-
 let gameState = "start";
 let lives = 3;
+let currentLevel =1;
+const MAX_LEVELS =5;
 
 const keys = { left: false, right: false };
 const PADDLE_SPEED = 7;
+let bricks;
+let bricksRemaining;
+function loadLevel(level){
+    bricks = createBricks(canvas, level);
+    bricksRemaining = bricks.length;
+    const speed = 3 + (level -1) *0.5;
+    ball.reset(speed)
+    paddle.reset();
+}
+
+loadLevel(1);
 
 function getCanvasX(clientX) {
     const rect = canvas.getBoundingClientRect();
@@ -46,8 +56,14 @@ window.addEventListener("keydown", (event) => {
     if (event.code === "ArrowRight" || event.key.toLowerCase() === "d") {
         keys.right = true;
     }
-    if (event.code === "Space" && gameState === "start") {
-        gameState = "playing";
+    if (event.code === "Space") {
+        if (gameState ==="start"){
+            gameState ="playing";
+        }else if (gameState === "levelComplete") {
+            currentLevel ++;
+            loadLevel(currentLevel);
+            gameState = "playing";
+        }
     }
     if (
         event.key.toLowerCase() === "r" &&
@@ -68,10 +84,8 @@ window.addEventListener("keyup", (event) => {
 
 function restartGame() {
     lives = 3;
-    bricks = createBricks(canvas);
-    bricksRemaining = bricks.length;
-    ball.reset();
-    paddle.reset();
+    currentLevel =1;
+    loadLevel(currentLevel);
     gameState = "start";
 }
 
@@ -96,7 +110,11 @@ function update() {
     if (result === "brickDestroyed") {
         bricksRemaining--;
         if (bricksRemaining === 0) {
-            gameState = "won";
+            if (currentLevel >= MAX_LEVELS) {
+                gameState ="won";
+            } else {
+                gameState = "levelComplete";
+            }
         }
     }
 
@@ -105,7 +123,7 @@ function update() {
         if (lives <= 0) {
             gameState = "lost";
         } else {
-            ball.reset();
+            ball.reset(3+(currentLevel -1)*0.5);
         }
     }
 }
@@ -113,13 +131,27 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+
+    if (gameState === "levelComplete") {
+        ctx.fillStyle = "#A8FF00";
+        ctx.font = "30px Arial";
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "#A8FF00";
+        ctx.textAlign = "center";
+        ctx.fillText(`Level ${currentLevel} Complete!`, canvas.width / 2, 280);
+        ctx.font = "18px Arial";
+        ctx.fillText("Press Space for Next Level", canvas.width / 2, 320);
+        ctx.textAlign = "left";
+        ctx.shadowBlur = 0;
+        return;
+    }
     if (gameState === "won") {
         ctx.fillStyle = "#A8FF00";
         ctx.font = "30px Arial";
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#A8FF00";
         ctx.textAlign = "center";
-        ctx.fillText("You Win!", canvas.width / 2, 280);
+        ctx.fillText("You Beat All Levels!", canvas.width / 2, 280);
         ctx.font = "18px Arial";
         ctx.fillText("Press R to Restart", canvas.width / 2, 320);
         ctx.textAlign = "left";
@@ -165,6 +197,9 @@ function draw() {
     ctx.font = "20px Arial";
     ctx.shadowBlur = 10;
     ctx.shadowColor = "#00F5FF";
+    ctx.textAlign ="center";
+    ctx.fillText(`Level: ${currentLevel}`, canvas.width/2, 30);
+    ctx.textAlign = "left";
     ctx.fillText(`Lives: ${lives}`, 20, 30);
     ctx.fillText(`Bricks: ${bricksRemaining}`, 350, 30);
     ctx.shadowBlur = 0;

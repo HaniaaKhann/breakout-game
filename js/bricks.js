@@ -1,7 +1,7 @@
-export function createBricks(canvas) {
+export function createBricks(canvas, level =1) {
     const bricks = [];
 
-    const rows =5;
+    const rows =Math.min(3+level, 7); // level 1 = 4 rows, level 2= 5 etc
     const cols =10;
 
     const brickColors = [

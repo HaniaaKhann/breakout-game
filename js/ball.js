@@ -2,14 +2,16 @@ export default class Ball {
     constructor() {
         this.radius = 10;
         this.color = "#FFFFFF";
+        this.baseSpeed =3;
         this.reset();
     }
 
-    reset() {
+    reset(speed = this.baseSpeed) {
         this.x = 250;
         this.y = 300;
-        this.dx = 3;
-        this.dy = -3;
+        this.dx = speed;
+        this.dy = -speed;
+        this.baseSpeed = speed;
     }
 
     update(canvas, paddle, bricks) {

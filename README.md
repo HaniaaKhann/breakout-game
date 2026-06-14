@@ -32,4 +32,4 @@ js/bricks.js    — brick grid setup
 
 ## Gameplay
 
-You have 3 lives. Clear all 50 bricks to win. Miss the ball and you lose a life.
+You have 3 lives. Clear all bricks to advance. Miss the ball and you lose a life. Beat all 5 levels to win. Ball speed increases each level.
