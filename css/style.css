@@ -16,5 +16,10 @@ body{
 #gameCanvas{
     border: 2px solid #00F5FF;
     background: #05070D;
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 5 / 6;
+    height: auto;
 }
 

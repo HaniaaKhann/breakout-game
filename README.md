@@ -14,7 +14,8 @@ Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
 ## Controls
 
-- **Mouse** — move the paddle
+- **Mouse / Touch** — move the paddle
+- **Arrow Keys / A D** — move the paddle
 - **Space** — start the game
 - **R** — restart after winning or losing
 

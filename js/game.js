@@ -1,100 +1,160 @@
 import Paddle from "./paddle.js";
 import Ball from "./ball.js";
-import {createBricks} from "./bricks.js";
+import { createBricks } from "./bricks.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const paddle = new Paddle();
-const ball = new Ball();
-
 canvas.width = 500;
 canvas.height = 600;
+
+const paddle = new Paddle(canvas.width);
+const ball = new Ball();
+
 let bricks = createBricks(canvas);
 let bricksRemaining = bricks.length;
 
-let gameState = "start"; 
+let gameState = "start";
 let lives = 3;
 
+const keys = { left: false, right: false };
+const PADDLE_SPEED = 7;
+
+function getCanvasX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    return (clientX - rect.left) * (canvas.width / rect.width);
+}
+
 canvas.addEventListener("mousemove", (event) => {
-    paddle.updatePosition(event.offsetX);
+    paddle.updatePosition(getCanvasX(event.clientX));
 });
 
+canvas.addEventListener("touchstart", (event) => {
+    event.preventDefault();
+    paddle.updatePosition(getCanvasX(event.touches[0].clientX));
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (event) => {
+    event.preventDefault();
+    paddle.updatePosition(getCanvasX(event.touches[0].clientX));
+}, { passive: false });
+
 window.addEventListener("keydown", (event) => {
-    if(
-        event.code === "Space" &&
-        gameState === "start"
-    ){
+    if (event.code === "ArrowLeft" || event.key.toLowerCase() === "a") {
+        keys.left = true;
+    }
+    if (event.code === "ArrowRight" || event.key.toLowerCase() === "d") {
+        keys.right = true;
+    }
+    if (event.code === "Space" && gameState === "start") {
         gameState = "playing";
     }
-    if (event.key.toLowerCase() ==="r" &&
-        (gameState === "won" || gameState === "lost"))
-    {
+    if (
+        event.key.toLowerCase() === "r" &&
+        (gameState === "won" || gameState === "lost")
+    ) {
         restartGame();
     }
 });
 
+window.addEventListener("keyup", (event) => {
+    if (event.code === "ArrowLeft" || event.key.toLowerCase() === "a") {
+        keys.left = false;
+    }
+    if (event.code === "ArrowRight" || event.key.toLowerCase() === "d") {
+        keys.right = false;
+    }
+});
 
-function restartGame(){
+function restartGame() {
     lives = 3;
     bricks = createBricks(canvas);
+    bricksRemaining = bricks.length;
     ball.reset();
+    paddle.reset();
     gameState = "start";
-
 }
 
-function update(){
-    if (gameState !== "playing"){
+function updatePaddleInput() {
+    if (keys.left) {
+        paddle.move(-PADDLE_SPEED);
+    }
+    if (keys.right) {
+        paddle.move(PADDLE_SPEED);
+    }
+}
+
+function update() {
+    updatePaddleInput();
+
+    if (gameState !== "playing") {
         return;
     }
+
     const result = ball.update(canvas, paddle, bricks);
 
-    bricksRemaining = bricks.filter(brick => !brick.destroyed).length;
-
-    if (bricksRemaining === 0){
-        gameState = "won";
+    if (result === "brickDestroyed") {
+        bricksRemaining--;
+        if (bricksRemaining === 0) {
+            gameState = "won";
+        }
     }
-    if (result === "lifeLost"){
+
+    if (result === "lifeLost") {
         lives--;
-        if (lives<= 0){
-            gameState ="lost";
-        } else{
+        if (lives <= 0) {
+            gameState = "lost";
+        } else {
             ball.reset();
         }
     }
 }
 
-function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (gameState === "won"){
+    if (gameState === "won") {
         ctx.fillStyle = "#A8FF00";
         ctx.font = "30px Arial";
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#A8FF00";
-        ctx.fillText("You Win!Press R to Restart", 180, 280);
-        ctx.fillText("Press R to Restart", 140, 320);
-
+        ctx.textAlign = "center";
+        ctx.fillText("You Win!", canvas.width / 2, 280);
+        ctx.font = "18px Arial";
+        ctx.fillText("Press R to Restart", canvas.width / 2, 320);
+        ctx.textAlign = "left";
+        ctx.shadowBlur = 0;
+        return;
     }
-    if (gameState === "lost"){
+
+    if (gameState === "lost") {
         ctx.fillStyle = "#FF0055";
         ctx.font = "30px Arial";
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#FF0055";
-        ctx.fillText("Game Over!", 180, 280);
-        ctx.fillText("Press R to Restart", 140, 320);
+        ctx.textAlign = "center";
+        ctx.fillText("Game Over!", canvas.width / 2, 280);
+        ctx.font = "18px Arial";
+        ctx.fillText("Press R to Restart", canvas.width / 2, 320);
+        ctx.textAlign = "left";
+        ctx.shadowBlur = 0;
+        return;
     }
 
-    if (gameState === "start"){
+    if (gameState === "start") {
         ctx.fillStyle = "#FF00E5";
         ctx.font = "30px Arial";
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#FF00E5";
-        ctx.fillText("BREAKOUT", 170, 250);
+        ctx.textAlign = "center";
+        ctx.fillText("BREAKOUT", canvas.width / 2, 250);
 
         ctx.font = "18px Arial";
         ctx.fillStyle = "#00F5FF";
-        ctx.fillText("Press Space to Start", 165, 300);
+        ctx.fillText("Press Space to Start", canvas.width / 2, 300);
+        ctx.fillText("Arrow Keys / A D to Move", canvas.width / 2, 330);
+        ctx.textAlign = "left";
+        ctx.shadowBlur = 0;
         return;
     }
 
@@ -109,30 +169,21 @@ function draw(){
     ctx.fillText(`Bricks: ${bricksRemaining}`, 350, 30);
     ctx.shadowBlur = 0;
 
-
-    bricks.forEach(brick => {
-        if(!brick.destroyed) {
+    bricks.forEach((brick) => {
+        if (!brick.destroyed) {
             ctx.fillStyle = brick.color;
             ctx.shadowBlur = 5;
             ctx.shadowColor = brick.color;
-            ctx.fillRect(
-                brick.x,
-                brick.y,
-                brick.width,
-                brick.height
-            );
+            ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
             ctx.shadowBlur = 0;
         }
     });
-
 }
 
-function gameLoop(){
+function gameLoop() {
     update();
     draw();
-
     requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
-
